@@ -260,71 +260,75 @@ namespace ConverterBMP {
 		OpenFileDialog^ openFileDialog1 = gcnew OpenFileDialog;
 
 	private: System::Void button2_Click(System::Object^  sender, System::EventArgs^  e) {
-		if ((bmpfile = fopen(bmpfilename, "rb")) != NULL) {
-			// заголовок файла
-			BITMAPFILEHEADER header[[gnu::unused]];
+		if (bmpfile != NULL) {
+			if (fseek(bmpfile, 0, SEEK_SET) != 0)
+				MessageBox::Show("Ошибка открытия bmp файла");
+			else {
+				// заголовок файла
+				BITMAPFILEHEADER header[[gnu::unused]];
 
-			header.bfType = read_u16(bmpfile);
-			header.bfSize = read_u32(bmpfile);
-			header.bfReserved1 = read_u16(bmpfile);
-			header.bfReserved2 = read_u16(bmpfile);
-			header.bfOffBits = read_u32(bmpfile);
+				header.bfType = read_u16(bmpfile);
+				header.bfSize = read_u32(bmpfile);
+				header.bfReserved1 = read_u16(bmpfile);
+				header.bfReserved2 = read_u16(bmpfile);
+				header.bfOffBits = read_u32(bmpfile);
 
-			//заголовок изображения
-			BITMAPINFOHEADER bmiHeader;
+				//заголовок изображения
+				BITMAPINFOHEADER bmiHeader;
 
-			bmiHeader.biSize = read_u32(bmpfile);
-			bmiHeader.biWidth = read_s32(bmpfile);
-			bmiHeader.biHeight = read_s32(bmpfile);
-			bmiHeader.biPlanes = read_u16(bmpfile);
-			bmiHeader.biBitCount = read_u16(bmpfile);
-			bmiHeader.biCompression = read_u32(bmpfile);
-			bmiHeader.biSizeImage = read_u32(bmpfile);
-			bmiHeader.biXPelsPerMeter = read_s32(bmpfile);
-			bmiHeader.biYPelsPerMeter = read_s32(bmpfile);
-			bmiHeader.biClrUsed = read_u32(bmpfile);
-			bmiHeader.biClrImportant = read_u32(bmpfile);
+				bmiHeader.biSize = read_u32(bmpfile);
+				bmiHeader.biWidth = read_s32(bmpfile);
+				bmiHeader.biHeight = read_s32(bmpfile);
+				bmiHeader.biPlanes = read_u16(bmpfile);
+				bmiHeader.biBitCount = read_u16(bmpfile);
+				bmiHeader.biCompression = read_u32(bmpfile);
+				bmiHeader.biSizeImage = read_u32(bmpfile);
+				bmiHeader.biXPelsPerMeter = read_s32(bmpfile);
+				bmiHeader.biYPelsPerMeter = read_s32(bmpfile);
+				bmiHeader.biClrUsed = read_u32(bmpfile);
+				bmiHeader.biClrImportant = read_u32(bmpfile);
 
-			width = bmiHeader.biWidth;
-			height = bmiHeader.biHeight;
-			//коды цвета
-			RGBQUAD **rgb = new RGBQUAD*[bmiHeader.biWidth];
-			for (int i = 0; i < bmiHeader.biWidth; i++) {
-				rgb[i] = new RGBQUAD[bmiHeader.biHeight];
-			}
-
-			for (int i = 0; i < bmiHeader.biWidth; i++) {
-				for (int j = 0; j < bmiHeader.biHeight; j++) {
-					rgb[i][j].rgbBlue = getc(bmpfile);
-					rgb[i][j].rgbGreen = getc(bmpfile);
-					rgb[i][j].rgbRed = getc(bmpfile);
+				width = bmiHeader.biWidth;
+				height = bmiHeader.biHeight;
+				//коды цвета
+				RGBQUAD **rgb = new RGBQUAD*[bmiHeader.biWidth];
+				for (int i = 0; i < bmiHeader.biWidth; i++) {
+					rgb[i] = new RGBQUAD[bmiHeader.biHeight];
 				}
-			}
-			rezfile = textBox1->Text;
-			IntPtr p = Marshal::StringToHGlobalAnsi(rezfile);
-			char* pAnsi = static_cast<char*>(p.ToPointer());
-			const char *path = ".txt";
-			strcat(pAnsi, path);
 
-			if ((txtfile = fopen(pAnsi, "w")) != NULL) {
-				// запись в txt
-				fprintf(txtfile, "unsigned char image_map[] = {\n#if LV_COLOR_DEPTH == 24\n");
-
-				for (int i = width - 1; i >= 0; i--) {
-					for (int j = 0; j < height; j++) {
-						fprintf(txtfile, "0x%02x, 0x%02x, 0x%02x, ", rgb[i][j].rgbBlue, rgb[i][j].rgbGreen, rgb[i][j].rgbRed);
+				for (int i = 0; i < bmiHeader.biWidth; i++) {
+					for (int j = 0; j < bmiHeader.biHeight; j++) {
+						rgb[i][j].rgbBlue = getc(bmpfile);
+						rgb[i][j].rgbGreen = getc(bmpfile);
+						rgb[i][j].rgbRed = getc(bmpfile);
 					}
-					fprintf(txtfile, "\n");
 				}
-				fprintf(txtfile, "\n#endif\n};");
-				fclose(txtfile);
-				for (int i = 0; i < width; ++i)
-					delete[] rgb[i];
-				delete[] rgb;
+				rezfile = textBox1->Text;
+				IntPtr p = Marshal::StringToHGlobalAnsi(rezfile);
+				char* pAnsi = static_cast<char*>(p.ToPointer());
+				const char *path = ".txt";
+				strcat(pAnsi, path);
+
+				if ((txtfile = fopen(pAnsi, "w")) != NULL) {
+					// запись в txt
+					fprintf(txtfile, "unsigned char image_map[] = {\n#if LV_COLOR_DEPTH == 24\n");
+
+					for (int i = width - 1; i >= 0; i--) {
+						for (int j = 0; j < height; j++) {
+							fprintf(txtfile, "0x%02x, 0x%02x, 0x%02x, ", rgb[i][j].rgbBlue, rgb[i][j].rgbGreen, rgb[i][j].rgbRed);
+						}
+						fprintf(txtfile, "\n");
+					}
+					fprintf(txtfile, "\n#endif\n};");
+					fclose(txtfile);
+					for (int i = 0; i < width; ++i)
+						delete[] rgb[i];
+					delete[] rgb;
+				}
+				else MessageBox::Show("Ошибка открытия текстового файла");
 			}
-			else MessageBox::Show("Ошибка открытия файла");
 		}
-		else MessageBox::Show("Ошибка открытия файла");
+		else MessageBox::Show("Ошибка открытия bmp файла");
 
 	}
 
@@ -340,7 +344,7 @@ namespace ConverterBMP {
 			char buffer[BUFSIZ];
 			int nread = 0;
 			if (fseek(bmpfile, 54, SEEK_SET) != 0)
-				MessageBox::Show("Ошибка открытия файла");
+				MessageBox::Show("Ошибка открытия bmp файла");
 			else {
 				while (nread = fread(buffer, sizeof(char), sizeof(buffer), bmpfile)) {
 					fwrite(buffer, sizeof(char), nread, binfile);
@@ -348,11 +352,10 @@ namespace ConverterBMP {
 				fclose(binfile);
 			}
 		}
-		else MessageBox::Show("Ошибка открытия файла");
+		else MessageBox::Show("Ошибка открытия бинарного файла");
 	}
 	private: System::Void button1_Click(System::Object^  sender, System::EventArgs^  e) {
 
-		openFileDialog1->InitialDirectory = "c:\\";
 		openFileDialog1->Filter = "bmp files (*.bmp)|*.bmp|All files (*.*)|*.*";
 		openFileDialog1->FilterIndex = 2;
 		openFileDialog1->RestoreDirectory = true;
@@ -361,10 +364,14 @@ namespace ConverterBMP {
 			String^ a = openFileDialog1->FileName;
 			IntPtr p = Marshal::StringToHGlobalAnsi(a);
 			bmpfilename = static_cast<const char*>(p.ToPointer());
+			if ((bmpfile = fopen(bmpfilename, "rb")) == NULL)
+				MessageBox::Show("Ошибка открытия bmp файла");
 		}
+		
 	}
 	private: System::Void ConverterBMP_FormClosing(System::Object^  sender, System::Windows::Forms::FormClosingEventArgs^  e) {
-		fclose(bmpfile);
+		if (bmpfile != NULL)
+			fclose(bmpfile);
 	}
 	};
 }
