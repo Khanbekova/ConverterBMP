@@ -121,8 +121,8 @@ namespace ConverterBMP {
 	private: System::Windows::Forms::Button^  button2;
 	private: System::Windows::Forms::Label^  label3;
 
-	private: System::Windows::Forms::TextBox^  textBox1;
-	private: System::Windows::Forms::Label^  label2;
+
+
 	private: System::Windows::Forms::Button^  button1;
 	private: System::Windows::Forms::Label^  label1;
 
@@ -144,8 +144,6 @@ namespace ConverterBMP {
 			this->button3 = (gcnew System::Windows::Forms::Button());
 			this->button2 = (gcnew System::Windows::Forms::Button());
 			this->label3 = (gcnew System::Windows::Forms::Label());
-			this->textBox1 = (gcnew System::Windows::Forms::TextBox());
-			this->label2 = (gcnew System::Windows::Forms::Label());
 			this->button1 = (gcnew System::Windows::Forms::Button());
 			this->label1 = (gcnew System::Windows::Forms::Label());
 			this->SuspendLayout();
@@ -154,7 +152,7 @@ namespace ConverterBMP {
 			// 
 			this->button3->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 12, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
 				static_cast<System::Byte>(204)));
-			this->button3->Location = System::Drawing::Point(219, 207);
+			this->button3->Location = System::Drawing::Point(219, 186);
 			this->button3->Name = L"button3";
 			this->button3->Size = System::Drawing::Size(185, 30);
 			this->button3->TabIndex = 15;
@@ -166,7 +164,7 @@ namespace ConverterBMP {
 			// 
 			this->button2->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 12, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
 				static_cast<System::Byte>(204)));
-			this->button2->Location = System::Drawing::Point(219, 171);
+			this->button2->Location = System::Drawing::Point(219, 150);
 			this->button2->Name = L"button2";
 			this->button2->Size = System::Drawing::Size(185, 30);
 			this->button2->TabIndex = 14;
@@ -179,39 +177,18 @@ namespace ConverterBMP {
 			this->label3->AutoSize = true;
 			this->label3->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 12, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
 				static_cast<System::Byte>(204)));
-			this->label3->Location = System::Drawing::Point(24, 188);
+			this->label3->Location = System::Drawing::Point(24, 167);
 			this->label3->Name = L"label3";
 			this->label3->Size = System::Drawing::Size(149, 20);
 			this->label3->TabIndex = 13;
 			this->label3->Text = L"Конвертировать в";
-			// 
-			// textBox1
-			// 
-			this->textBox1->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 12, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
-				static_cast<System::Byte>(204)));
-			this->textBox1->Location = System::Drawing::Point(143, 92);
-			this->textBox1->Name = L"textBox1";
-			this->textBox1->Size = System::Drawing::Size(190, 26);
-			this->textBox1->TabIndex = 11;
-			this->textBox1->Text = L"Введите имя файла";
-			// 
-			// label2
-			// 
-			this->label2->AutoSize = true;
-			this->label2->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 12, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
-				static_cast<System::Byte>(204)));
-			this->label2->Location = System::Drawing::Point(24, 95);
-			this->label2->Name = L"label2";
-			this->label2->Size = System::Drawing::Size(96, 20);
-			this->label2->TabIndex = 10;
-			this->label2->Text = L"Имя файла";
 			// 
 			// button1
 			// 
 			this->button1->BackgroundImageLayout = System::Windows::Forms::ImageLayout::Center;
 			this->button1->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 12, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
 				static_cast<System::Byte>(204)));
-			this->button1->Location = System::Drawing::Point(182, 28);
+			this->button1->Location = System::Drawing::Point(219, 69);
 			this->button1->Name = L"button1";
 			this->button1->Size = System::Drawing::Size(104, 30);
 			this->button1->TabIndex = 9;
@@ -224,7 +201,7 @@ namespace ConverterBMP {
 			this->label1->AutoSize = true;
 			this->label1->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 12, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
 				static_cast<System::Byte>(204)));
-			this->label1->Location = System::Drawing::Point(24, 28);
+			this->label1->Location = System::Drawing::Point(61, 69);
 			this->label1->Name = L"label1";
 			this->label1->Size = System::Drawing::Size(87, 20);
 			this->label1->TabIndex = 8;
@@ -238,8 +215,6 @@ namespace ConverterBMP {
 			this->Controls->Add(this->button3);
 			this->Controls->Add(this->button2);
 			this->Controls->Add(this->label3);
-			this->Controls->Add(this->textBox1);
-			this->Controls->Add(this->label2);
 			this->Controls->Add(this->button1);
 			this->Controls->Add(this->label1);
 			this->Name = L"ConverterBMP";
@@ -250,7 +225,6 @@ namespace ConverterBMP {
 
 		}
 #pragma endregion
-		String^ rezfile;
 		int width;
 		int height;
 		const char* bmpfilename;
@@ -303,29 +277,35 @@ namespace ConverterBMP {
 						rgb[i][j].rgbRed = getc(bmpfile);
 					}
 				}
-				rezfile = textBox1->Text;
-				IntPtr p = Marshal::StringToHGlobalAnsi(rezfile);
-				char* pAnsi = static_cast<char*>(p.ToPointer());
-				const char *path = ".txt";
-				strcat(pAnsi, path);
 
-				if ((txtfile = fopen(pAnsi, "w")) != NULL) {
-					// запись в txt
-					fprintf(txtfile, "unsigned char image_map[] = {\n#if LV_COLOR_DEPTH == 24\n");
+				SaveFileDialog^ saveFileDialogtxt = gcnew SaveFileDialog;
+				saveFileDialogtxt->Filter = "txt files (*.txt)|*.txt|All files (*.*)|*.*";
+				if (saveFileDialogtxt->ShowDialog() == System::Windows::Forms::DialogResult::OK)
+				{
+					String^ fileNametxt = saveFileDialogtxt->FileName;
+					const char* txtfilename;
+					IntPtr p = Marshal::StringToHGlobalAnsi(fileNametxt);
+					txtfilename = static_cast<const char*>(p.ToPointer());
 
-					for (int i = width - 1; i >= 0; i--) {
-						for (int j = 0; j < height; j++) {
-							fprintf(txtfile, "0x%02x, 0x%02x, 0x%02x, ", rgb[i][j].rgbBlue, rgb[i][j].rgbGreen, rgb[i][j].rgbRed);
+
+					if ((txtfile = fopen(txtfilename, "w")) != NULL) {
+						// запись в txt
+						fprintf(txtfile, "unsigned char image_map[] = {\n#if LV_COLOR_DEPTH == 24\n");
+
+						for (int i = width - 1; i >= 0; i--) {
+							for (int j = 0; j < height; j++) {
+								fprintf(txtfile, "0x%02x, 0x%02x, 0x%02x, ", rgb[i][j].rgbBlue, rgb[i][j].rgbGreen, rgb[i][j].rgbRed);
+							}
+							fprintf(txtfile, "\n");
 						}
-						fprintf(txtfile, "\n");
+						fprintf(txtfile, "\n#endif\n};");
+						fclose(txtfile);
+						for (int i = 0; i < width; ++i)
+							delete[] rgb[i];
+						delete[] rgb;
 					}
-					fprintf(txtfile, "\n#endif\n};");
-					fclose(txtfile);
-					for (int i = 0; i < width; ++i)
-						delete[] rgb[i];
-					delete[] rgb;
+					else MessageBox::Show("Ошибка открытия текстового файла");
 				}
-				else MessageBox::Show("Ошибка открытия текстового файла");
 			}
 		}
 		else MessageBox::Show("Ошибка открытия bmp файла");
@@ -333,26 +313,31 @@ namespace ConverterBMP {
 	}
 
 	private: System::Void button3_Click(System::Object^  sender, System::EventArgs^  e) {
-		rezfile = textBox1->Text;
-		IntPtr p = Marshal::StringToHGlobalAnsi(rezfile);
-		char* pAnsi = static_cast<char*>(p.ToPointer());
-		const char *path = ".bin";
-		strcat(pAnsi, path);
 
-		//запись в bin
-		if ((binfile = fopen(pAnsi, "w")) != NULL) {
-			char buffer[BUFSIZ];
-			int nread = 0;
-			if (fseek(bmpfile, 54, SEEK_SET) != 0)
-				MessageBox::Show("Ошибка открытия bmp файла");
-			else {
-				while (nread = fread(buffer, sizeof(char), sizeof(buffer), bmpfile)) {
-					fwrite(buffer, sizeof(char), nread, binfile);
+		SaveFileDialog^ saveFileDialogbin = gcnew SaveFileDialog;
+		saveFileDialogbin->Filter = "bin files (*.bin)|*.bin|All files (*.*)|*.*";
+		if (saveFileDialogbin->ShowDialog() == System::Windows::Forms::DialogResult::OK)
+		{
+			String^ fileNamebin = saveFileDialogbin->FileName;
+			const char* binfilename;
+			IntPtr p = Marshal::StringToHGlobalAnsi(fileNamebin);
+			binfilename = static_cast<const char*>(p.ToPointer());
+
+			//запись в bin
+			if ((binfile = fopen(binfilename, "w")) != NULL) {
+				char buffer[BUFSIZ];
+				int nread = 0;
+				if (fseek(bmpfile, 54, SEEK_SET) != 0)
+					MessageBox::Show("Ошибка открытия bmp файла");
+				else {
+					while (nread = fread(buffer, sizeof(char), sizeof(buffer), bmpfile)) {
+						fwrite(buffer, sizeof(char), nread, binfile);
+					}
+					fclose(binfile);
 				}
-				fclose(binfile);
 			}
+			else MessageBox::Show("Ошибка открытия бинарного файла");
 		}
-		else MessageBox::Show("Ошибка открытия бинарного файла");
 	}
 	private: System::Void button1_Click(System::Object^  sender, System::EventArgs^  e) {
 
@@ -367,7 +352,7 @@ namespace ConverterBMP {
 			if ((bmpfile = fopen(bmpfilename, "rb")) == NULL)
 				MessageBox::Show("Ошибка открытия bmp файла");
 		}
-		
+
 	}
 	private: System::Void ConverterBMP_FormClosing(System::Object^  sender, System::Windows::Forms::FormClosingEventArgs^  e) {
 		if (bmpfile != NULL)
